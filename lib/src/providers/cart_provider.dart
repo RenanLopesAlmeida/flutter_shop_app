@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/src/providers/products_provider.dart';
 
 class CartItem {
   final String id;
@@ -14,7 +16,7 @@ class CartItem {
   });
 }
 
-class CartsProvider with ChangeNotifier {
+class CartProvider with ChangeNotifier {
   Map<String, CartItem> _items = {};
 
   Map<String, CartItem> get items {
@@ -23,6 +25,15 @@ class CartsProvider with ChangeNotifier {
 
   int get itemCount {
     return _items.length;
+  }
+
+  double get totalAmount {
+    double total = 0;
+    _items.forEach((key, cartItem) {
+      total += cartItem.price * cartItem.quantity;
+    });
+
+    return total;
   }
 
   void addItem(String productId, String productTitle, double price) {
@@ -47,7 +58,6 @@ class CartsProvider with ChangeNotifier {
         ),
       );
     }
-
     notifyListeners();
   }
 }

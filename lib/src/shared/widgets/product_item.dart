@@ -7,7 +7,7 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _product = Provider.of<Product>(context, listen: false);
-    final _cart = Provider.of<CartsProvider>(context, listen: false);
+    final _cart = Provider.of<CartProvider>(context, listen: false);
 
     return Hero(
       tag: '${_product.id}',
