@@ -9,42 +9,44 @@ class ProductItem extends StatelessWidget {
     final _product = Provider.of<Product>(context, listen: false);
     final _cart = Provider.of<CartProvider>(context, listen: false);
 
-    return Hero(
-      tag: '${_product.id}',
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: GridTile(
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/product-detail-screen',
-                arguments: _product.id,
-              );
-            },
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: GridTile(
+        child: GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/product-detail-screen',
+              arguments: _product.id,
+            );
+          },
+          child: Container(
+            constraints: BoxConstraints(maxHeight: 200, maxWidth: 200),
             child: Image.network(
               _product.imageUrl,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
             ),
           ),
-          footer: GridTileBar(
-            backgroundColor: Colors.black87,
-            leading: Consumer<Product>(
-              builder: (ctx, product, _) => IconButton(
-                color: Theme.of(context).accentColor,
-                icon: Icon(
-                  product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                ),
-                onPressed: () {
-                  product.toggleFavoriteStatus();
-                },
+        ),
+        footer: GridTileBar(
+          backgroundColor: Colors.black87,
+          leading: Consumer<Product>(
+            builder: (ctx, product, _) => IconButton(
+              color: Theme.of(context).accentColor,
+              icon: Icon(
+                product.isFavorite ? Icons.favorite : Icons.favorite_border,
               ),
+              onPressed: () {
+                product.toggleFavoriteStatus();
+              },
             ),
-            title: Text(
-              _product.title,
-              textAlign: TextAlign.center,
-            ),
-            trailing: IconButton(
+          ),
+          title: Text(
+            _product.title,
+            textAlign: TextAlign.center,
+          ),
+          trailing: Container(
+            child: IconButton(
               color: Theme.of(context).accentColor,
               icon: Icon(Icons.shopping_cart),
               onPressed: () {
