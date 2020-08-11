@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
-import 'package:shop_app/src/providers/products_provider.dart';
+import 'package:shop_app/src/providers/product.dart';
+import 'package:shop_app/src/server/dummy_product_data.dart';
 
 class CartItem {
   final String id;
@@ -18,6 +18,7 @@ class CartItem {
 
 class CartProvider with ChangeNotifier {
   Map<String, CartItem> _items = {};
+  List<Product> _products = ProductsData.products;
 
   Map<String, CartItem> get items {
     return {..._items};
@@ -59,5 +60,15 @@ class CartProvider with ChangeNotifier {
       );
     }
     notifyListeners();
+  }
+
+  void removeItem(String productId) {
+    _items.remove(productId);
+    notifyListeners();
+  }
+
+  String productImage(String id) {
+    final product = _products.firstWhere((element) => element.id == id);
+    return product.imageUrl;
   }
 }
