@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/src/providers/cart_provider.dart';
 import 'package:shop_app/src/screens/products_overview_screen/widgets/products_grid.dart';
+import 'package:shop_app/src/shared/widgets/app_drawer_widget.dart';
 import 'package:shop_app/src/shared/widgets/badge_widget.dart';
 
 enum FilterOptions {
@@ -57,6 +58,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           )
         ],
       ),
+      drawer: AppDrawer(),
       body: ProductsGrid(
         showFavorites: _showOnlyFavorites,
       ),

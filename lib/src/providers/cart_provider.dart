@@ -67,6 +67,11 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void clear() {
+    _items = {};
+    notifyListeners();
+  }
+
   String productImage(String id) {
     final product = _products.firstWhere((element) => element.id == id);
     return product.imageUrl;
