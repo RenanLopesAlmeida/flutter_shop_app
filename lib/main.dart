@@ -4,8 +4,10 @@ import 'package:shop_app/src/providers/cart_provider.dart';
 import 'package:shop_app/src/providers/orders_provider.dart';
 import 'package:shop_app/src/providers/products_provider.dart';
 import 'package:shop_app/src/screens/cart_screen/cart_screen.dart';
+import 'package:shop_app/src/screens/edit_product_screen/edit_product_screen.dart';
 import 'package:shop_app/src/screens/orders_screen/orders_screen.dart';
 import 'package:shop_app/src/screens/product_detail_screen/product_detail_screen.dart';
+import 'package:shop_app/src/screens/user_products_screen/user_products_screen.dart';
 
 import 'src/screens/products_overview_screen/products_overview_screen.dart';
 
@@ -43,6 +45,8 @@ class MyApp extends StatelessWidget {
           '/products-overview-screen': (ctx) => ProductsOverviewScreen(),
           '/cart-screen': (ctx) => CartScreen(),
           '/orders-screen': (ctx) => OrdersScreen(),
+          '/user-products-screen': (ctx) => UserProductsScreen(),
+          '/edit-product-screen': (ctx) => EditProductScreen(),
         },
         initialRoute: '/products-overview-screen',
       ),
