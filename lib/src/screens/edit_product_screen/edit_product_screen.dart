@@ -23,11 +23,41 @@ class _EditProductScreenState extends State<EditProductScreen> {
     description: '',
     imageUrl: '',
   );
+  var _initValues = {
+    'title': '',
+    'description': '',
+    'price': '',
+    'imageUrl': '',
+  };
+
+  var _isInit = true;
 
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      final productId = ModalRoute.of(context).settings.arguments as String;
+      if (productId != null) {
+        _editedProduct = Provider.of<ProductsProvider>(context, listen: false)
+            .findById(productId);
+        _initValues = {
+          'title': _editedProduct.title,
+          'description': _editedProduct.title,
+          'price': _editedProduct.price.toString(),
+          'imageUrl': '',
+        };
+
+        _imageUrlController.text = _editedProduct.imageUrl;
+      }
+    }
+
+    _isInit = false;
+    super.didChangeDependencies();
   }
 
   @override
@@ -42,7 +72,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
-      print(_imageUrlController.text.endsWith('.jpg').toString());
       if ((_imageUrlController.text.isEmpty) ||
           !_imageUrlController.text.endsWith('.jpg') &&
               !_imageUrlController.text.endsWith('.jpeg') &&
@@ -61,8 +90,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
 
     _form.currentState.save();
-    Provider.of<ProductsProvider>(context, listen: false)
-        .addProduct(_editedProduct);
+
+    final product = Provider.of<ProductsProvider>(context, listen: false);
+    if (_editedProduct.id != null) {
+      product.updateProduct(_editedProduct.id, _editedProduct);
+    } else {
+      product.addProduct(_editedProduct);
+    }
     Navigator.of(context).pop();
   }
 
@@ -87,6 +121,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 TextFormField(
+                  initialValue: _initValues['title'],
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: 'Title',
@@ -104,12 +139,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       price: _editedProduct.price,
                       description: _editedProduct.description,
                       imageUrl: _editedProduct.imageUrl,
-                      id: null,
+                      id: _editedProduct.id,
+                      isFavorite: _editedProduct.isFavorite,
                     );
                   },
                 ),
                 SizedBox(height: 20),
                 TextFormField(
+                  initialValue: _initValues['price'],
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.number,
                   focusNode: _priceFocusNode,
@@ -129,7 +166,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       price: double.parse(newValue),
                       description: _editedProduct.description,
                       imageUrl: _editedProduct.imageUrl,
-                      id: null,
+                      id: _editedProduct.id,
+                      isFavorite: _editedProduct.isFavorite,
                     );
                   },
                 ),
@@ -176,7 +214,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             price: _editedProduct.price,
                             description: _editedProduct.imageUrl,
                             imageUrl: newValue,
-                            id: null,
+                            id: _editedProduct.id,
+                            isFavorite: _editedProduct.isFavorite,
                           );
                         },
                       ),
@@ -185,6 +224,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 ),
                 SizedBox(height: 20),
                 TextFormField(
+                  initialValue: _initValues['description'],
                   keyboardType: TextInputType.multiline,
                   maxLines: 3,
                   focusNode: _descriptionFocusNode,
@@ -201,7 +241,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       price: _editedProduct.price,
                       description: newValue,
                       imageUrl: _editedProduct.imageUrl,
-                      id: null,
+                      id: _editedProduct.id,
+                      isFavorite: _editedProduct.isFavorite,
                     );
                   },
                 ),

@@ -9,6 +9,10 @@ class UserProductsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final _products = Provider.of<ProductsProvider>(context);
 
+    Function deleteProduct(String id) {
+      _products.deleteProduct(id);
+    }
+
     return Scaffold(
       backgroundColor: Color(0xfff7f7f7),
       appBar: AppBar(
@@ -28,8 +32,10 @@ class UserProductsScreen extends StatelessWidget {
         child: ListView.builder(
           itemCount: _products.products.length,
           itemBuilder: (context, index) => UserProductItem(
+            id: _products.products[index].id,
             title: _products.products[index].title,
             imageUrl: _products.products[index].imageUrl,
+            deleteProduct: deleteProduct,
           ),
         ),
       ),

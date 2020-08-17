@@ -29,4 +29,19 @@ class ProductsProvider with ChangeNotifier {
   List<Product> get favoriteItems {
     return _products.where((element) => element.isFavorite).toList();
   }
+
+  void updateProduct(String id, Product newProduct) {
+    final productId = _products.indexWhere((product) => product.id == id);
+    if (productId >= 0) {
+      _products[productId] = newProduct;
+      notifyListeners();
+    } else {
+      print('Product id not found');
+    }
+  }
+
+  void deleteProduct(String productId) {
+    _products.removeWhere((product) => product.id == productId);
+    notifyListeners();
+  }
 }
