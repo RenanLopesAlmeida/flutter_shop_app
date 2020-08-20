@@ -9,61 +9,62 @@ class ProductItem extends StatelessWidget {
     final _product = Provider.of<Product>(context, listen: false);
     final _cart = Provider.of<CartProvider>(context, listen: false);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: GridTile(
-        child: GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              '/product-detail-screen',
-              arguments: _product.id,
-            );
-          },
-          child: Container(
-            constraints: BoxConstraints(maxHeight: 200, maxWidth: 200),
+    return GridTile(
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            '/product-detail-screen',
+            arguments: _product.id,
+          );
+        },
+        child: Container(
+          constraints: BoxConstraints(maxHeight: 200, maxWidth: 200),
+          child: Hero(
+            tag: '${_product.id}',
             child: Image.network(
               _product.imageUrl,
               fit: BoxFit.contain,
             ),
           ),
         ),
-        footer: GridTileBar(
-          backgroundColor: Colors.black87,
-          leading: Consumer<Product>(
-            builder: (ctx, product, _) => IconButton(
-              color: Theme.of(context).accentColor,
-              icon: Icon(
-                product.isFavorite ? Icons.favorite : Icons.favorite_border,
-              ),
-              onPressed: () {
-                product.toggleFavoriteStatus();
-              },
+      ),
+      footer: GridTileBar(
+        backgroundColor: Color.fromRGBO(204, 204, 204, 0.8),
+        leading: Consumer<Product>(
+          builder: (ctx, product, _) => IconButton(
+            color: Theme.of(context).accentColor,
+            icon: Icon(
+              product.isFavorite ? Icons.favorite : Icons.favorite_border,
             ),
+            onPressed: () {
+              product.toggleFavoriteStatus();
+            },
           ),
-          title: Text(
-            _product.title,
-            textAlign: TextAlign.center,
-          ),
-          trailing: Container(
-            child: IconButton(
-              color: Theme.of(context).accentColor,
-              icon: Icon(Icons.shopping_cart),
-              onPressed: () {
-                _cart.addItem(_product.id, _product.title, _product.price);
-                Scaffold.of(context).hideCurrentSnackBar();
-                Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text('added an item to cart'),
-                  duration: Duration(milliseconds: 1200),
-                  action: SnackBarAction(
-                    label: 'UNDO',
-                    onPressed: () {
-                      _cart.removeSingleItem(_product.id);
-                    },
-                  ),
-                ));
-              },
-            ),
+        ),
+        title: Text(
+          _product.title,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
+        trailing: Container(
+          child: IconButton(
+            color: Theme.of(context).accentColor,
+            icon: Icon(Icons.shopping_cart),
+            onPressed: () {
+              _cart.addItem(_product.id, _product.title, _product.price);
+              Scaffold.of(context).hideCurrentSnackBar();
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text('added an item to cart'),
+                duration: Duration(milliseconds: 1200),
+                action: SnackBarAction(
+                  label: 'UNDO',
+                  onPressed: () {
+                    _cart.removeSingleItem(_product.id);
+                  },
+                ),
+              ));
+            },
           ),
         ),
       ),

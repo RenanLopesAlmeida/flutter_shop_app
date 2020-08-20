@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:shop_app/src/providers/product.dart';
 
 class ProductsData {

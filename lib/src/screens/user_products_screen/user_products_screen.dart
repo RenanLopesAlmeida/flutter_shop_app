@@ -9,8 +9,14 @@ class UserProductsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final _products = Provider.of<ProductsProvider>(context);
 
-    Function deleteProduct(String id) {
-      _products.deleteProduct(id);
+    Future<void> deleteProduct(String id) async {
+      await _products.deleteProduct(id);
+      return null;
+    }
+
+    Future<void> _refreshProducts(BuildContext context) async {
+      await Provider.of<ProductsProvider>(context, listen: false)
+          .fetchProducts();
     }
 
     return Scaffold(
@@ -27,15 +33,18 @@ class UserProductsScreen extends StatelessWidget {
         ],
       ),
       drawer: AppDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: ListView.builder(
-          itemCount: _products.products.length,
-          itemBuilder: (context, index) => UserProductItem(
-            id: _products.products[index].id,
-            title: _products.products[index].title,
-            imageUrl: _products.products[index].imageUrl,
-            deleteProduct: deleteProduct,
+      body: RefreshIndicator(
+        onRefresh: () => _refreshProducts(context),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: ListView.builder(
+            itemCount: _products.products.length,
+            itemBuilder: (context, index) => UserProductItem(
+              id: _products.products[index].id,
+              title: _products.products[index].title,
+              imageUrl: _products.products[index].imageUrl,
+              deleteProduct: deleteProduct,
+            ),
           ),
         ),
       ),

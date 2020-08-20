@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:shop_app/src/config/services/api.dart';
 import 'package:shop_app/src/providers/product.dart';
-import 'package:shop_app/src/server/dummy_product_data.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:shop_app/src/shared/exceptions/http_exception.dart';
 
 class ProductsProvider with ChangeNotifier {
-  List<Product> _products = ProductsData.products;
+  List<Product> _products = [];
   final url = '${API.BASE_URL}products.json';
 
   List<Product> get products {
@@ -17,6 +17,31 @@ class ProductsProvider with ChangeNotifier {
 
   Product findById(String id) {
     return _products.firstWhere((product) => product.id == id);
+  }
+
+  Future<void> fetchProducts() async {
+    try {
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final List<Product> _loadedProducts = [];
+
+      extractedData.forEach((productId, productData) {
+        _loadedProducts.add(Product(
+          id: productId,
+          title: productData['title'],
+          price: productData['price'],
+          description: productData['description'],
+          isFavorite: productData['isFavorite'],
+          imageUrl: productData['imageUrl'],
+        ));
+      });
+
+      _products = _loadedProducts;
+      notifyListeners();
+    } catch (error) {
+      print('ERROR in fetching products: $error');
+      throw error;
+    }
   }
 
   Future<void> addProduct(Product product) async {
@@ -50,18 +75,45 @@ class ProductsProvider with ChangeNotifier {
     return _products.where((element) => element.isFavorite).toList();
   }
 
-  void updateProduct(String id, Product newProduct) {
+  Future<void> updateProduct(String id, Product newProduct) async {
     final productId = _products.indexWhere((product) => product.id == id);
     if (productId >= 0) {
-      _products[productId] = newProduct;
-      notifyListeners();
+      final baseUrl = '${API.BASE_URL}products/$id.json';
+      try {
+        await http.patch(baseUrl,
+            body: json.encode({
+              'title': newProduct.title,
+              'description': newProduct.description,
+              'imageUrl': newProduct.imageUrl,
+              'price': newProduct.price,
+            }));
+        _products[productId] = newProduct;
+        notifyListeners();
+      } catch (error) {
+        print('Could nout update this product. Error: $error');
+        //TODO: throw an error and handle it on the ui
+      }
     } else {
       print('Product id not found');
     }
   }
 
-  void deleteProduct(String productId) {
-    _products.removeWhere((product) => product.id == productId);
+  Future<void> deleteProduct(String productId) async {
+    final baseUrl = '${API.BASE_URL}products/$productId.json';
+
+    final _existingProductIndex =
+        _products.indexWhere((product) => product.id == productId);
+    var _existingProduct = _products[_existingProductIndex];
+    _products.removeAt(_existingProductIndex);
     notifyListeners();
+
+    final response = await http.delete(baseUrl); //.then((response) {
+    if (response.statusCode >= 400) {
+      _products.insert(_existingProductIndex, _existingProduct);
+      notifyListeners();
+      throw HttpException('Could not delete product');
+    }
+
+    _existingProduct = null;
   }
 }

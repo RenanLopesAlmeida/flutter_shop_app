@@ -14,18 +14,21 @@ class ProductsGrid extends StatelessWidget {
         showFavorites ? _productData.favoriteItems : _productData.products;
 
     return GridView.builder(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: const EdgeInsets.all(10.0),
       itemCount: _products.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 3 / 2,
+        childAspectRatio: 2 / 3,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
       itemBuilder: (ctx, index) {
         return ChangeNotifierProvider.value(
           value: _products[index],
-          child: ProductItem(),
+          child: Card(
+            elevation: 15,
+            child: ProductItem(),
+          ),
         );
       },
     );
