@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
+import 'package:shop_app/src/config/services/api.dart';
 import 'package:shop_app/src/providers/product.dart';
 import 'package:shop_app/src/server/dummy_product_data.dart';
+
+import 'package:http/http.dart' as http;
 
 class CartItem {
   final String id;
@@ -19,6 +24,7 @@ class CartItem {
 class CartProvider with ChangeNotifier {
   Map<String, CartItem> _items = {};
   List<Product> _products = ProductsData.products;
+  String productImageUrl;
 
   Map<String, CartItem> get items {
     return {..._items};
@@ -90,10 +96,5 @@ class CartProvider with ChangeNotifier {
   void clear() {
     _items = {};
     notifyListeners();
-  }
-
-  String productImage(String id) {
-    final product = _products.firstWhere((element) => element.id == id);
-    return product.imageUrl;
   }
 }

@@ -18,25 +18,6 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showOnlyFavorites = false;
-  var _isInit = true;
-  var _isLoading = false;
-
-  @override
-  void didChangeDependencies() {
-    if (_isInit) {
-      setState(() {
-        _isLoading = true;
-      });
-      Provider.of<ProductsProvider>(context).fetchProducts().then((_) {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    }
-
-    _isInit = false;
-    super.didChangeDependencies();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,13 +60,28 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: (_isLoading)
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : ProductsGrid(
-              showFavorites: _showOnlyFavorites,
-            ),
+      body: FutureBuilder(
+        future: Provider.of<ProductsProvider>(
+          context,
+          listen: false,
+        ).fetchProducts(),
+        builder: (context, snapshot) {
+          if (snapshot.error != null) {
+            return Center(
+              child: Text(
+                  'Something went wrong, check your internet connection and try again'),
+            );
+          } else {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else {
+              return ProductsGrid(
+                showFavorites: _showOnlyFavorites,
+              );
+            }
+          }
+        },
+      ),
     );
   }
 }

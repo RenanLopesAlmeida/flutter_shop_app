@@ -15,18 +15,71 @@ class OrdersProvider with ChangeNotifier {
     return [..._orders];
   }
 
-  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    final _productEncoded = jsonEncode({});
-    _orders.insert(
-      0,
-      OrderModel(
-        id: DateTime.now().toString(),
-        amount: total,
-        dateTime: DateTime.now(),
-        products: cartProducts,
-      ),
-    );
+  Future<void> fetchOrders() async {
+    final response = await http.get(_url);
+    final List<OrderModel> loadedOrders = [];
+    final extractedData = jsonDecode(response.body) as Map<String, dynamic>;
 
+    if (extractedData == null) {
+      return;
+    }
+
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(
+        OrderModel(
+          id: orderId,
+          amount: orderData['amount'],
+          dateTime: DateTime.parse(orderData['dateTime']),
+          products: (orderData['products'] as List<dynamic>)
+              .map(
+                (item) => CartItem(
+                  id: item['id'],
+                  price: item['price'],
+                  quantity: item['quantity'],
+                  title: item['title'],
+                ),
+              )
+              .toList(),
+        ),
+      );
+    });
+
+    _orders = loadedOrders.reversed.toList();
     notifyListeners();
+  }
+
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    final timestamp = DateTime.now();
+    try {
+      final response = await http.post(_url,
+          body: jsonEncode({
+            'amount': total,
+            'dateTime': timestamp.toIso8601String(),
+            'products': cartProducts
+                .map(
+                  (item) => {
+                    'id': item.id,
+                    'title': item.title,
+                    'quantity': item.quantity,
+                    'price': item.price,
+                  },
+                )
+                .toList(),
+          }));
+
+      _orders.insert(
+        0,
+        OrderModel(
+          id: jsonDecode(response.body)['name'],
+          amount: total,
+          dateTime: timestamp,
+          products: cartProducts,
+        ),
+      );
+
+      notifyListeners();
+    } catch (error) {
+      print('Something went wrong in your order request');
+    }
   }
 }

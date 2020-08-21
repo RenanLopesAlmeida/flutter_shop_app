@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/src/providers/cart_provider.dart';
+import 'package:shop_app/src/providers/products_provider.dart';
 
 class CartItemWidget extends StatelessWidget {
   final String id, productId, title;
   final double price;
   final int quantity;
 
-  const CartItemWidget(
-      {this.id, this.productId, this.title, this.price, this.quantity});
+  const CartItemWidget({
+    this.id,
+    this.productId,
+    this.title,
+    this.price,
+    this.quantity,
+  });
 
   @override
   Widget build(BuildContext context) {
     final _cart = Provider.of<CartProvider>(context, listen: false);
+    final _productImageUrl =
+        Provider.of<ProductsProvider>(context, listen: false)
+            .getProductImageUrl(productId);
 
     return Dismissible(
       key: ValueKey(id),
@@ -62,7 +71,7 @@ class CartItemWidget extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Image.network(
-                  _cart.productImage(productId),
+                  _productImageUrl,
                   fit: BoxFit.contain,
                 ),
               ),

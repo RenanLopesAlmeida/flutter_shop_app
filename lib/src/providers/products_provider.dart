@@ -19,10 +19,20 @@ class ProductsProvider with ChangeNotifier {
     return _products.firstWhere((product) => product.id == id);
   }
 
+  String getProductImageUrl(String id) {
+    final product = findById(id);
+    return product.imageUrl;
+  }
+
   Future<void> fetchProducts() async {
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+
+      if (extractedData == null) {
+        return;
+      }
+
       final List<Product> _loadedProducts = [];
 
       extractedData.forEach((productId, productData) {
