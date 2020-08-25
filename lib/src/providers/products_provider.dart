@@ -9,6 +9,11 @@ import 'package:shop_app/src/shared/exceptions/http_exception.dart';
 
 class ProductsProvider with ChangeNotifier {
   List<Product> _products = [];
+
+  final String authToken;
+
+  ProductsProvider(this.authToken, this._products);
+
   final url = '${API.BASE_URL}products.json';
 
   List<Product> get products {
@@ -26,7 +31,8 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> fetchProducts() async {
     try {
-      final response = await http.get(url);
+      final productsUrl = '${API.BASE_URL}products.json?auth=$authToken';
+      final response = await http.get(productsUrl);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
 
       if (extractedData == null) {
