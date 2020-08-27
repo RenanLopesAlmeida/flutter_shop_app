@@ -15,8 +15,6 @@ class ProductsProvider with ChangeNotifier {
 
   ProductsProvider(this.authToken, this.userId, this._products);
 
-  //final url = '${API.BASE_URL}products.json';
-
   List<Product> get products {
     return [..._products];
   }
@@ -30,9 +28,13 @@ class ProductsProvider with ChangeNotifier {
     return product.imageUrl;
   }
 
-  Future<void> fetchProducts() async {
+  Future<void> fetchProducts([bool filterByUser = false]) async {
     try {
-      var productsUrl = '${API.BASE_URL}products.json?auth=$authToken';
+      final filterString =
+          filterByUser ? '&orderBy="creatorId"&equalTo="$userId"' : '';
+
+      var productsUrl =
+          '${API.BASE_URL}products.json?auth=$authToken$filterString';
       final response = await http.get(productsUrl);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
 
@@ -71,7 +73,8 @@ class ProductsProvider with ChangeNotifier {
       'title': product.title,
       'description': product.description,
       'imageUrl': product.imageUrl,
-      'price': product.price
+      'price': product.price,
+      'creatorId': userId,
     });
 
     try {

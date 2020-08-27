@@ -5,20 +5,19 @@ import 'package:shop_app/src/screens/user_products_screen/widgets/user_product_i
 import 'package:shop_app/src/shared/widgets/app_drawer_widget.dart';
 
 class UserProductsScreen extends StatelessWidget {
+  Future<void> deleteProduct(BuildContext context, String id) async {
+    await Provider.of<ProductsProvider>(context, listen: false)
+        .deleteProduct(id);
+    return null;
+  }
+
+  Future<void> _refreshProducts(BuildContext context) async {
+    await Provider.of<ProductsProvider>(context, listen: false)
+        .fetchProducts(true);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _products = Provider.of<ProductsProvider>(context);
-
-    Future<void> deleteProduct(String id) async {
-      await _products.deleteProduct(id);
-      return null;
-    }
-
-    Future<void> _refreshProducts(BuildContext context) async {
-      await Provider.of<ProductsProvider>(context, listen: false)
-          .fetchProducts();
-    }
-
     return Scaffold(
       backgroundColor: Color(0xfff7f7f7),
       appBar: AppBar(
@@ -33,20 +32,30 @@ class UserProductsScreen extends StatelessWidget {
         ],
       ),
       drawer: AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshProducts(context),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: ListView.builder(
-            itemCount: _products.products.length,
-            itemBuilder: (context, index) => UserProductItem(
-              id: _products.products[index].id,
-              title: _products.products[index].title,
-              imageUrl: _products.products[index].imageUrl,
-              deleteProduct: deleteProduct,
-            ),
-          ),
-        ),
+      body: FutureBuilder(
+        future: _refreshProducts(context),
+        builder: (context, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: () => _refreshProducts(context),
+                    child: Consumer<ProductsProvider>(
+                      builder: (context, productsData, _) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: ListView.builder(
+                            itemCount: productsData.products.length,
+                            itemBuilder: (context, index) => UserProductItem(
+                              id: productsData.products[index].id,
+                              title: productsData.products[index].title,
+                              imageUrl: productsData.products[index].imageUrl,
+                              deleteProduct: deleteProduct,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
       ),
     );
   }
