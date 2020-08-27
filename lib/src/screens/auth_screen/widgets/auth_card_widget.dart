@@ -23,6 +23,7 @@ class _AuthCardState extends State<AuthCard> {
   };
   var _isLoading = false;
   final _passwordController = TextEditingController();
+  final _passwordFocus = FocusNode();
 
   String _handleError(String error) {
     String message = 'Authentication failed';
@@ -96,10 +97,11 @@ class _AuthCardState extends State<AuthCard> {
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     return Card(
+      color: Colors.white.withOpacity(0.6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
-      elevation: 8.0,
+      elevation: 12.0,
       child: Container(
         height: _authMode == AuthMode.Signup ? 320 : 260,
         constraints:
@@ -113,6 +115,7 @@ class _AuthCardState extends State<AuthCard> {
               children: <Widget>[
                 TextFormField(
                   decoration: InputDecoration(labelText: 'E-Mail'),
+                  textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value.isEmpty || !value.contains('@')) {
@@ -122,9 +125,13 @@ class _AuthCardState extends State<AuthCard> {
                   onSaved: (value) {
                     _authData['email'] = value;
                   },
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_passwordFocus);
+                  },
                 ),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Password'),
+                  focusNode: _passwordFocus,
                   obscureText: true,
                   controller: _passwordController,
                   validator: (value) {

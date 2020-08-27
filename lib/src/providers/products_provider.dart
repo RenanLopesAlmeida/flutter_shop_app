@@ -11,10 +11,11 @@ class ProductsProvider with ChangeNotifier {
   List<Product> _products = [];
 
   final String authToken;
+  final String userId;
 
-  ProductsProvider(this.authToken, this._products);
+  ProductsProvider(this.authToken, this.userId, this._products);
 
-  final url = '${API.BASE_URL}products.json';
+  //final url = '${API.BASE_URL}products.json';
 
   List<Product> get products {
     return [..._products];
@@ -31,13 +32,17 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> fetchProducts() async {
     try {
-      final productsUrl = '${API.BASE_URL}products.json?auth=$authToken';
+      var productsUrl = '${API.BASE_URL}products.json?auth=$authToken';
       final response = await http.get(productsUrl);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
 
       if (extractedData == null) {
         return;
       }
+
+      productsUrl = '${API.BASE_URL}userFavorites/$userId.json?auth=$authToken';
+      final favoriteResponse = await http.get(productsUrl);
+      final favoriteData = jsonDecode(favoriteResponse.body);
 
       final List<Product> _loadedProducts = [];
 
@@ -47,7 +52,8 @@ class ProductsProvider with ChangeNotifier {
           title: productData['title'],
           price: productData['price'],
           description: productData['description'],
-          isFavorite: productData['isFavorite'],
+          isFavorite:
+              (favoriteData == null) ? false : favoriteData[productId] ?? false,
           imageUrl: productData['imageUrl'],
         ));
       });
@@ -65,11 +71,12 @@ class ProductsProvider with ChangeNotifier {
       'title': product.title,
       'description': product.description,
       'imageUrl': product.imageUrl,
-      'price': product.price,
-      'isFavorite': product.isFavorite
+      'price': product.price
     });
+
     try {
-      final response = await http.post(url, body: productJson);
+      final productsUrl = '${API.BASE_URL}products.json?auth=$authToken';
+      final response = await http.post(productsUrl, body: productJson);
 
       final newProduct = Product(
         title: product.title,
@@ -94,7 +101,7 @@ class ProductsProvider with ChangeNotifier {
   Future<void> updateProduct(String id, Product newProduct) async {
     final productId = _products.indexWhere((product) => product.id == id);
     if (productId >= 0) {
-      final baseUrl = '${API.BASE_URL}products/$id.json';
+      final baseUrl = '${API.BASE_URL}products/$id.json?auth=$authToken';
       try {
         await http.patch(baseUrl,
             body: json.encode({
@@ -115,7 +122,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String productId) async {
-    final baseUrl = '${API.BASE_URL}products/$productId.json';
+    final baseUrl = '${API.BASE_URL}products/$productId.json?auth=$authToken';
 
     final _existingProductIndex =
         _products.indexWhere((product) => product.id == productId);
@@ -123,7 +130,7 @@ class ProductsProvider with ChangeNotifier {
     _products.removeAt(_existingProductIndex);
     notifyListeners();
 
-    final response = await http.delete(baseUrl); //.then((response) {
+    final response = await http.delete(baseUrl);
     if (response.statusCode >= 400) {
       _products.insert(_existingProductIndex, _existingProduct);
       notifyListeners();
