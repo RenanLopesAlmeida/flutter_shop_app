@@ -7,6 +7,7 @@ A flutter shopping app (I'm still working on it)
 
 ## Plugins
 - Provider
+- Firebase
 
 ## How it looks like so far
 
