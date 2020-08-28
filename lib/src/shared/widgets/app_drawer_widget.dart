@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/src/providers/auth_provider.dart';
 
 class AppDrawer extends StatelessWidget {
   @override
@@ -9,6 +11,16 @@ class AppDrawer extends StatelessWidget {
           AppBar(
             title: Text('Hello, Renan'),
             automaticallyImplyLeading: false,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.exit_to_app),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Provider.of<AuthProvider>(context, listen: false).logout();
+                  Navigator.of(context).pushReplacementNamed('/');
+                },
+              ),
+            ],
           ),
           Divider(),
           ListTile(

@@ -9,6 +9,7 @@ import 'package:shop_app/src/screens/cart_screen/cart_screen.dart';
 import 'package:shop_app/src/screens/edit_product_screen/edit_product_screen.dart';
 import 'package:shop_app/src/screens/orders_screen/orders_screen.dart';
 import 'package:shop_app/src/screens/product_detail_screen/product_detail_screen.dart';
+import 'package:shop_app/src/screens/splash_screen.dart';
 import 'package:shop_app/src/screens/user_products_screen/user_products_screen.dart';
 
 import 'src/screens/products_overview_screen/products_overview_screen.dart';
@@ -23,7 +24,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          //ChangeNotifierProvider(create: (ctx) => ProductsProvider(null, [])),
           ChangeNotifierProvider(create: (ctx) => AuthProvider()),
           ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
             create: (context) => ProductsProvider(null, null, []),
@@ -64,7 +64,19 @@ class MyApp extends StatelessWidget {
                 '/user-products-screen': (ctx) => UserProductsScreen(),
                 '/edit-product-screen': (ctx) => EditProductScreen(),
               },
-              home: (auth.isAuth) ? ProductsOverviewScreen() : AuthScreen(),
+              home: (auth.isAuth)
+                  ? ProductsOverviewScreen()
+                  : FutureBuilder(
+                      future: auth.tryAutoLogin(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return SplashScreen();
+                        } else {
+                          return AuthScreen();
+                        }
+                      },
+                    ),
             );
           },
         ));
